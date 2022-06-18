@@ -26,10 +26,9 @@ app.use('/api', apiRouter);
 
 
 
-// app.get('/', (req,res) => {
-//   User.findOne
-//   res.status(200).send('hello world!')
-// })
+app.get('/', (req,res) => {
+  res.status(200).send('hello world!')
+})
 
 
 
