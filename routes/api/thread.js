@@ -43,7 +43,7 @@ router.get('/', async (req, res, next) => {
 // get best thread
 router.get('/best', (req, res, next) => {
     Thread.find({ isDeleted: false })
-        .sort({ view_count: 1 })
+        .sort({ view_count: -1 })
         .limit(4)
         .then((data) => {
             console.log(data)

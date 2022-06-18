@@ -46,7 +46,7 @@ router.get('/', async (req, res, next) => {
                         res.status(404).send('삭제된 게시물')
                         return;
                     }
-                    let view_count = data.view_count + 1
+                    let view_count = thread_data.view_count + 1
                     Thread.findOneAndUpdate({ "_id": thread }, { "view_count": view_count }, {
                         upsert: false
                     })
