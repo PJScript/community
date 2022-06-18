@@ -25,8 +25,8 @@ const DateUtil = require('../../utils/dateUtil')
 router.get('/', async (req, res, next) => {
     const page = Number(req.query.page);
     const thread = req.query.thread
-    const totalPost = await Board.countDocuments({isDeleted:false})
-    const { startPage, endPage, hidePost, max, totalPage, currentPage } = Page.paging(page, totalPost, 10)
+    const totalPost = await Board.countDocuments({ isDeleted: false })
+    const { hidePost, max } = Page.paging(page, totalPost, 10)
 
     if (totalPost <= 10 && page >= 2) {
         Board.find({ isDeleted: false })
@@ -36,37 +36,50 @@ router.get('/', async (req, res, next) => {
                 return;
             })
     } else {
-        Board.find({ isDeleted: false, thread_id:thread })
+        Board.find({ isDeleted: false, thread_id: thread })
             .sort({ _id: -1 })
             .skip(hidePost)
             .limit(max)
             .then((data) => {
-                res.status(200).send(data)
-                return;
+                Thread.findOne({ _id: thread }).then((thread_data) => { // 조회수 
+                    if (!thread_data) {
+                        res.status(404).send('삭제된 게시물')
+                        return;
+                    }
+                    let view_count = data.view_count + 1
+                    Thread.findOneAndUpdate({ "_id": thread }, { "view_count": view_count }, {
+                        upsert: false
+                    })
+                        .then(() => {
+                            res.status(200).send(data)
+                            return;
+                        })
+                })
+
             })
     }
 })
 
 
-router.get('/my' , (req,res,next) => {
+router.get('/my', (req, res, next) => {
     const { authorization } = req.headers
     const token = authorization.split(' ')[1]
     const verifyToken = JWT.verify(token)
-    const {email} = verifyToken
+    const { email } = verifyToken
 
     if (!verifyToken.success) {
         res.status(404).send();
         return;
     }
 
-    Board.find({user_email:email})
-    .then((data)=>{
-      res.status(200).send(data)
-    })
-    .catch((err)=>{
-      console.log(err)
-      res.status(404).send(err)
-    })
+    Board.find({ user_email: email })
+        .then((data) => {
+            res.status(200).send(data)
+        })
+        .catch((err) => {
+            console.log(err)
+            res.status(404).send(err)
+        })
 })
 // 게시글 조회
 router.get('/:id', (req, res, next) => {
@@ -77,7 +90,7 @@ router.get('/:id', (req, res, next) => {
 
     Board.findOne({ _id: id }).then((data) => {
         console.log(data)
-        if(!data){
+        if (!data) {
             res.status(404).send('삭제된 게시물')
             return;
         }
@@ -110,7 +123,7 @@ router.get('/:id', (req, res, next) => {
 // 게시물 작성
 router.post('/:thread', (req, res, next) => {
     const { thread } = req.params
-    console.log(thread,"스레드")
+    console.log(thread, "스레드")
     console.log(DateUtil.now())
 
     const { authorization } = req.headers
@@ -136,11 +149,11 @@ router.post('/:thread', (req, res, next) => {
             user_email: email,
             user_nickname: nickname,
             desc: contents,
-            thread_id:thread
+            thread_id: thread
         })
-        .then((board_data) => {
-          res.status(200).send(board_data)
-        })
+            .then((board_data) => {
+                res.status(200).send(board_data)
+            })
     }).catch((err) => {
         console.log(err)
         res.status(404).send();
@@ -201,28 +214,28 @@ router.delete('/:id', async (req, res, next) => {
         return;
     }
 
-    const { email,role } = verifyToken
+    const { email, role } = verifyToken
 
-    Board.findOne({_id:id})
-    .then((targetPost) => {
-      if(targetPost.user_email === email || role === "admin"){
-        Board.findOneAndUpdate({ _id: id }, { isDeleted: true }, {
-            new: true
-        }).then((result) => {
-          res.status(200).send("success")
-        })
-            .catch((err) => {
-                console.log(err)
-                res.status(404).send();
+    Board.findOne({ _id: id })
+        .then((targetPost) => {
+            if (targetPost.user_email === email || role === "admin") {
+                Board.findOneAndUpdate({ _id: id }, { isDeleted: true }, {
+                    new: true
+                }).then((result) => {
+                    res.status(200).send("success")
+                })
+                    .catch((err) => {
+                        console.log(err)
+                        res.status(404).send();
+                        return;
+                    })
+            } else {
+                res.status(404).send('권한이 없습니다')
                 return;
-            })
-      }else{
-       res.status(404).send('권한이 없습니다')
-        return;
-      }
-    })
+            }
+        })
 
-    
+
 });
 
 
