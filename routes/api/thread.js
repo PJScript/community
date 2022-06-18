@@ -74,11 +74,17 @@ router.get('/:id', (req, res, next) => {
             return;
         }
         let view_count = data.view_count + 1
+        Thread.findOneAndUpdate({"_id":id},{"view_count":view_count},{
+            upsert:false
+        })
+        .then((update_data) => {
+          res.status(200).send(updata_data)
+          return;
+        })
         if (data.isDeleted) {
             res.status(404).send('삭제된 게시물')
             return;
         }
-        res.status(200).send(data)
     })
 })
 

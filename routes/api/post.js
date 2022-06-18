@@ -208,7 +208,6 @@ router.delete('/:id', async (req, res, next) => {
       if(targetPost.user_email === email || role === "admin"){
         Board.findOneAndUpdate({ _id: id }, { isDeleted: true }, {
             new: true
-    
         }).then((result) => {
           res.status(200).send("success")
         })

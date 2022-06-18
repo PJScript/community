@@ -28,7 +28,6 @@ const userSchema = new mongoose.Schema({
   email: String,
   password: String,
   name: String,
-  
   created_at:{type:Date, default:Date.now()},
   updated_at:{type:Date, default:Date.now()},
   deleted_at:{type:Date, default:null},
