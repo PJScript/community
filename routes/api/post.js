@@ -60,8 +60,9 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-router.get('/join' (req,res,next) => {
+router.get('/join', (req,res,next) => {
   
+  res.status(200).send('토론 참여 여부')
 })
 
 
