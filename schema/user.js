@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
   id:ObjectId,
   usr_addr:{ type:String,default:null },
   nickname:{ type:String },
+  isBanned:{type:Boolean,default:false},
   role:{type:String, default:"user"},
   friends_idx:{type:[friendsSchema], default: null},
   email: String,

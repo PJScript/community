@@ -58,19 +58,32 @@ router.post('/:id', (req, res, next) => {
                     deleted_at: null,
                 }]
             } else {
-
-                like = like.filter((el, idx) => {
-                    if (el.email !== email) {
-                        console.log(like_count, "test")
-
-                        return el
-                    }
-                })
-
-                if (like.length === 0) {
-                    like_count -= 1;
-                    Boolean = false
+                
+                for(let i=0; i<=like.length-1; i++){
+                   if(like[i].email === email){
+                    like = like.filter((el,idx)=>{
+                      return el.email !== email
+                    })
+                     break;
+                   }else{
+                    like.push(
+                        {
+                            usr_name: name,
+                            email: email,
+                            created_at: Date.now(),
+                            updated_at: Date.now(),
+                            deleted_at: null,
+                        }
+                    )
+                   }
                 }
+
+                
+
+                // if (like.length === 0) {
+                //     like_count -= 1;
+                //     Boolean = false
+                // }
 
             }
             Board.findOneAndUpdate({ _id: id }, { like: like, like_count: like_count }, {

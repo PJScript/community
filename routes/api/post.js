@@ -60,6 +60,10 @@ router.get('/', async (req, res, next) => {
     }
 })
 
+router.get('/join' (req,res,next) => {
+  
+})
+
 
 router.get('/my', (req, res, next) => {
     const { authorization } = req.headers
