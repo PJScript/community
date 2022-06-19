@@ -55,7 +55,8 @@ router.post('/:id', (req, res, next) => {
             })
             console.log(like, "라이크")
 
-            if (likeboolean === false) {
+            if(likeBoolean === false) {
+                like_count +=1;
                 like.push({
                     usr_name: name,
                     email: email,
@@ -63,7 +64,9 @@ router.post('/:id', (req, res, next) => {
                     updated_at: Date.now(),
                     deleted_at: null,
                 })  
-            } 
+            } else{
+                like_count -=1;
+            }
 
 
             Board.findOneAndUpdate({ _id: id }, { like: like, like_count: like_count }, {
