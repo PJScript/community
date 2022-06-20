@@ -17,6 +17,8 @@ const ThreadSchema = new mongoose.Schema({
   title: String,
   desc: String,
   admin_email: String,
+  // admin_idx:ObjectId,
+  type:String,
   activation:{type: Boolean, default: true},
   engaged_users:{type:[user],default: null},
   view_count:{ type: Number, default: 0},

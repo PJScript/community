@@ -7,10 +7,10 @@ const { Types: { ObjectId } } = Schema;
 const commentsSchema = new mongoose.Schema(
   [{
     id: ObjectId, 
-    email: String, 
-    usr_name: String,
-    nickname:String, 
     desc: String, 
+    usr_email: String,
+    nickname: String,
+    user_id:{type: ObjectId, ref: 'User'},
     created_at: {type:Date,default:Date.now() }, 
     updated_at: {type:Date,default:Date.now() }, 
     deleted_at: {type:Date,default:null} 
@@ -22,6 +22,8 @@ const likeSchema = new mongoose.Schema(
     id: ObjectId,
     usr_name: String,
     email: String,
+    nickname:String,
+    user_id:ObjectId,
     created_at: { type: Date, default: Date.now() },
     updated_at: { type: Date, default: Date.now() },
     deleted_at: { type: Date, default: null },
@@ -42,8 +44,8 @@ const BoardSchema = new mongoose.Schema({
   id: ObjectId,
   thread_id:{type:ObjectId,default:null},
   title: String,
-  user_email: String,
-  user_nickname: String,
+
+  user_id:{type: ObjectId, ref: 'User'},
   view_count: { type: Number, default: 0 },
   desc: String,
   tag:{type:[tagSchema], default:null},

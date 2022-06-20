@@ -47,7 +47,7 @@ router.post('/:id', (req, res, next) => {
             let like_count = boardData.like_count
             let likeBoolean = false
             like = like.filter((el, idx) => {
-                if (el.email === email) {
+                if (el.user_id === userData.user_id) {
                     likeBoolean = true
                 } else {
                     return el
@@ -58,8 +58,10 @@ router.post('/:id', (req, res, next) => {
             if(likeBoolean === false) {
                 like_count +=1;
                 like.push({
-                    usr_name: name,
-                    email: email,
+                    user_id: userData.user_id,
+                    usr_name: email,
+                    email: name,
+                    nickname: nickname,
                     created_at: Date.now(),
                     updated_at: Date.now(),
                     deleted_at: null,

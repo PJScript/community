@@ -9,6 +9,7 @@ const Thread = require('../../schema/thread')
 const Page = require('../../utils/pageNation')
 const DateUtil = require('../../utils/dateUtil')
 
+const mongoose = require('mongoose')
 
 // 서버요청 요구사항 여부 검증
 // router.use('/', (req, res, next) => {
@@ -40,7 +41,29 @@ router.get('/', async (req, res, next) => {
             .sort({ _id: -1 })
             .skip(hidePost)
             .limit(max)
+            .populate('user_id')
             .then((data) => {
+                let result = data;
+                for(let i=0; i <= data.length-1; i++){
+                  console.log(data[i])
+                }
+                // let user_ids = []
+
+                // for (let i = 0; i <= data.length - 1; i++) {
+
+                //     user_ids.push(data[i].user_id.toString())
+                // }
+
+                // console.log(user_ids)
+                // User.find({
+                //     '_id': { $in: [...user_ids] }
+                // }).then((user_data) => {
+                //     console.log(user_data)
+                //     for (let i = 0; i <= data.length - 1; i++) {
+                //         white
+                //     }
+                // })
+
                 Thread.findOne({ _id: thread }).then((thread_data) => { // 조회수 
                     if (!thread_data) {
                         res.status(404).send('삭제된 게시물')
@@ -51,6 +74,7 @@ router.get('/', async (req, res, next) => {
                         upsert: false
                     })
                         .then(() => {
+
                             res.status(200).send(data)
                             return;
                         })
@@ -60,32 +84,13 @@ router.get('/', async (req, res, next) => {
     }
 })
 
-router.get('/join', (req,res,next) => {
-  
-  res.status(200).send('토론 참여 여부')
+router.get('/join', (req, res, next) => {
+
+    res.status(200).send('토론 참여 여부')
 })
 
 
-router.get('/my', (req, res, next) => {
-    const { authorization } = req.headers
-    const token = authorization.split(' ')[1]
-    const verifyToken = JWT.verify(token)
-    const { email } = verifyToken
 
-    if (!verifyToken.success) {
-        res.status(404).send();
-        return;
-    }
-
-    Board.find({ user_email: email })
-        .then((data) => {
-            res.status(200).send(data)
-        })
-        .catch((err) => {
-            console.log(err)
-            res.status(404).send(err)
-        })
-})
 // 게시글 조회
 router.get('/:id', (req, res, next) => {
     console.log("test")
@@ -94,7 +99,6 @@ router.get('/:id', (req, res, next) => {
 
 
     Board.findOne({ _id: id }).then((data) => {
-        console.log(data)
         if (!data) {
             res.status(404).send('삭제된 게시물')
             return;
@@ -107,7 +111,7 @@ router.get('/:id', (req, res, next) => {
 
         Board.findOneAndUpdate({ _id: id }, { view_count: view_count }, {
 
-        }).then((result) => {
+        }).populate('user_id').then((result) => {
             res.status(200).send(result);
 
         }).catch((err) => {
@@ -148,16 +152,19 @@ router.post('/:thread', (req, res, next) => {
     User.findOne({
         email: email
     }).then((result) => {
-        const { nickname } = result
+        const { nickname, _id, email } = result
         Board.create({
             title: title,
-            user_email: email,
-            user_nickname: nickname,
             desc: contents,
-            thread_id: thread
+            thread_id: thread,
+            user_id: _id
         })
             .then((board_data) => {
-                res.status(200).send(board_data)
+                console.log(result, "유저 데이터")
+                let data = board_data
+                data.user_email = email
+                data.user_nickname = nickname
+                res.status(200).send(data)
             })
     }).catch((err) => {
         console.log(err)

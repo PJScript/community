@@ -40,13 +40,19 @@ router.get('/', async (req, res, next) => {
     // res.status(200).send("모든 토론");
 })
 
+router.get('/category', (req,res,next) => {
+    Thread.find({type:'category'})
+    .then((board_data)=>{
+      res.status(200).send(board_data)
+    })
+})
+
 // get best thread
 router.get('/best', (req, res, next) => {
-    Thread.find({ isDeleted: false })
+    Thread.find({ isDeleted: false,type:"debate" })
         .sort({ view_count: -1 })
         .limit(4)
         .then((data) => {
-            console.log(data)
             res.status(200).send(data)
             return;
         })
@@ -54,11 +60,10 @@ router.get('/best', (req, res, next) => {
 
 // get new thread
 router.get('/new', (req, res, next) => {
-    Thread.find({ isDeleted: false })
+    Thread.find({ isDeleted: false,type:"debate"  })
         .sort({ _id: -1 })
         .limit(4)
         .then((data) => {
-            console.log(data)
             res.status(200).send(data)
             return;
         })
@@ -157,7 +162,7 @@ router.post('/add', (req, res, next) => {
     const verifyToken = JWT.verify(token)
     const { email, role } = verifyToken
 
-    const { title, desc } = req.body
+    const { title, desc, type } = req.body
     if (!title || !desc) {
         res.status(404).send('title, desc 파라미터 체크');
         return;
@@ -167,7 +172,8 @@ router.post('/add', (req, res, next) => {
     Thread.insertMany({
         title: title,
         desc: desc,
-        admin_email: email
+        admin_email: email,
+        type: type
     })
         .then((data) => {
             res.status(200).send(data)
